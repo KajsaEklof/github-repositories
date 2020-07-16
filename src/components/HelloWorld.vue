@@ -7,11 +7,9 @@
       color="primary"
       class="secondary--text font-weight-black"
     >
+      <v-icon color="accent" x-large class="pr-3">mdi-github</v-icon>
       <v-toolbar-title>Github Repositories App</v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-btn icon>
-        <v-icon color="accent">mdi-magnify</v-icon>
-      </v-btn>
     </v-app-bar>
 
     <v-fade-transition>
@@ -21,7 +19,7 @@
         </v-row>
         <v-row justify="space-around">
           <p>
-            Search for a GitHub username to view their repositories.
+            Search for a GitHub user to view their repositories.
           </p>
         </v-row>
         <v-row justify="space-around">
@@ -33,7 +31,7 @@
                   :rules="loginRules"
                   outlined
                   label="GitHub Username"
-                  placeholder="Start typing for a username..."
+                  placeholder="Start typing a username..."
                   v-model="username"
                   @keyup.enter="fetchRepos(username)"
                   @input="clearResultErrorMessage(), (viewBranches = false)"
@@ -68,8 +66,11 @@
       <v-container id="repositories" v-if="viewRepos" class="pb-16">
         <v-row>
           <v-col cols="12 text-center">
-            <h2>
-              Here are the repositories, enjoy!
+            <h2 v-if="repos.length > 1">
+              Here are {{ username }}'s {{ repos.length }} repositories, enjoy!
+            </h2>
+            <h2 v-if="repos.length < 2">
+              Here is {{ username }}'s {{ repos.length }} repository, enjoy!
             </h2>
           </v-col>
         </v-row>
@@ -79,31 +80,40 @@
             v-for="repo in repos.slice(page * pageSize - 25, page * pageSize)"
             :key="repo.name"
           >
-            <v-card
-              class="pt-2 pb-2 ma-5"
-              @click="showBranches(repo.name, username)"
-            >
-              <v-list-item>
-                <v-list-item-avatar
-                  ><v-img :src="repo.owner.avatar_url" alt="User Avatar"
-                /></v-list-item-avatar>
-                <v-list-item-content>
-                  <v-list-item-title
-                    ><a
-                      :href="
-                        `https://github.com/${repo.owner.login}/${repo.name}`
-                      "
-                      target="_blank"
-                      >{{ repo.name }}
-                    </a></v-list-item-title
-                  >
-                  <v-list-item-subtitle
-                    >Created:
-                    {{ formatDate(repo.created_at) }}
-                  </v-list-item-subtitle>
-                </v-list-item-content>
-              </v-list-item>
-            </v-card>
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on, attrs }">
+                <v-card
+                  v-bind="attrs"
+                  v-on="on"
+                  class="pt-2 pb-2 ma-5"
+                  @click="showBranches(repo.name, username)"
+                  @keyup.enter="showBranches(repo.name, username)"
+                >
+                  <v-list-item three-line>
+                    <v-list-item-avatar size="62"
+                      ><v-img :src="repo.owner.avatar_url" alt="User Avatar"
+                    /></v-list-item-avatar>
+                    <v-list-item-content>
+                      <v-list-item-title>
+                        <a :href="repo.html_url" target="_blank"
+                          >{{ repo.name }}
+                        </a>
+                      </v-list-item-title>
+
+                      <v-list-item-subtitle
+                        class="font-weight-bold primary--text"
+                        >Created:
+                        {{ formatDate(repo.created_at) }}
+                      </v-list-item-subtitle>
+                      <v-list-item-subtitle class="black--text">
+                        {{ repo.description }}
+                      </v-list-item-subtitle>
+                    </v-list-item-content>
+                  </v-list-item>
+                </v-card>
+              </template>
+              <span>Clikc to view branches</span>
+            </v-tooltip>
           </v-col>
         </v-row>
 
@@ -136,8 +146,11 @@
 
         <v-row>
           <v-col cols="12 text-center">
-            <h2 v-if="branches.length > 0">
-              Branches on the repository {{ repoName }}
+            <h2 v-if="branches.length > 1 || branches.length === 0">
+              The repository {{ repoName }} has {{ branches.length }} branches
+            </h2>
+            <h2 v-if="branches.length < 2 && branches.length !== 0">
+              The repository {{ repoName }} has {{ branches.length }} branch
             </h2>
           </v-col>
         </v-row>
@@ -263,7 +276,7 @@ export default class HelloWorld extends Vue {
 
   formatDate(date: string) {
     const newDate = moment(date);
-    const formattedDate = newDate.format("Do MMMM YYYY");
+    const formattedDate = newDate.format("D MMMM YYYY");
     return formattedDate;
   }
 }
