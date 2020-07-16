@@ -1,25 +1,22 @@
-import Vue from 'vue'
-import Vuetify from 'vuetify'
-import 'vuetify/dist/vuetify.min.css'
-import colors from 'vuetify/lib/util/colors'
+import Vue from "vue";
+import Vuetify from "vuetify";
+import "vuetify/dist/vuetify.min.css";
+import colors from "vuetify/lib/util/colors";
 
-
-Vue.use(Vuetify)
-
-const opts = {}
+Vue.use(Vuetify);
 
 export default new Vuetify({
-    theme: {
-        themes: {
-            light: {
-                primary: '#4527A0', // deep-purple darken-3
-                secondary: '#D1C4E9', // deep-purple lighten-4
-                accent: '#B388FF', //deep-purple accent-1
-                error: '#FF5252', //red accent-2
-                info: '#FFFDE7', //'yellow lighten-5
-                success: '#4CAF50', //green 
-                warning: '#FFC107' //amber
-            },
-        },
-    },
-})
+  theme: {
+    themes: {
+      light: {
+        primary: colors.deepPurple.darken3, 
+        secondary: colors.deepPurple.lighten4, 
+        accent: colors.deepPurple.accent1, 
+        error: colors.red.accent2, 
+        info: colors.yellow.lighten5, 
+        success: colors.green.darken1, 
+        warning:  colors.amber.darken1, 
+      }
+    }
+  }
+});
