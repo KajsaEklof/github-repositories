@@ -234,10 +234,8 @@ export default class HelloWorld extends Vue {
   // Fetching the branches when a repository is selected
   fetchBranches(repo: string, username: string) {
     const errorMessage = "Sorry, that repo does not have any branches.";
-    axios({
-      method: "GET",
-      url: ` https://api.github.com/repos/${username}/${repo}/branches`
-    })
+    axios
+      .get(`https://api.github.com/repos/${username}/${repo}/branches`)
       .then(response => {
         this.repoName = repo;
         this.branches = response.data;
