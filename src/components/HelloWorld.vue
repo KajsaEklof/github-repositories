@@ -1,19 +1,8 @@
 <template>
   <v-main>
-    <v-app-bar
-      app
-      flat
-      hide-on-scroll
-      color="primary"
-      class="secondary--text font-weight-black"
-    >
-      <v-icon color="accent" x-large class="pr-3">mdi-github</v-icon>
-      <v-toolbar-title>Github Repositories App</v-toolbar-title>
-      <v-spacer></v-spacer>
-    </v-app-bar>
-
+    <!-- Search box Module -->
     <v-fade-transition>
-      <v-container id="searchbox" v-if="showSearch" class="pt-16">
+      <v-container class="pt-16">
         <v-row justify="space-around">
           <h1>Find a GitHub Repository</h1>
         </v-row>
@@ -23,7 +12,7 @@
           </p>
         </v-row>
         <v-row justify="space-around">
-          <v-col cols="6">
+          <v-col sm="8" lg="6">
             <v-row>
               <v-input>
                 <v-text-field
@@ -34,7 +23,11 @@
                   placeholder="Start typing a username..."
                   v-model="username"
                   @keyup.enter="fetchRepos(username)"
-                  @input="clearResultErrorMessage(), (viewBranches = false)"
+                  @input="
+                    clearResultErrorMessage(),
+                      (showRepos = false),
+                      (noRepos = false)
+                  "
                   clearable
                   :loading="loading"
                 >
@@ -47,15 +40,30 @@
                 @click="fetchRepos(username)"
                 :loading="loading"
                 color="secondary"
-                light
                 >Search</v-btn
               >
             </v-row>
             <v-row>
               <p v-if="resultErrorMessage" class="red--text">
                 {{ resultErrorMessage }}
-              </p></v-row
-            >
+              </p>
+            </v-row>
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-fade-transition>
+
+    <v-fade-transition>
+      <v-container v-if="noRepos" class="pb-16">
+        <v-row>
+          <v-col cols="12 text-center">
+            <h2>
+              Hmm, looks like the user {{ username }} doesn't have any
+              repositories on GitHub.
+            </h2>
+            <!-- <v-list-item-avatar size="62"
+              ><v-img :src="repos.owner.avatar_url" alt="User Avatar"
+            /></v-list-item-avatar> -->
           </v-col>
         </v-row>
       </v-container>
@@ -63,7 +71,7 @@
 
     <!-- Repositories -->
     <v-fade-transition>
-      <v-container id="repositories" v-if="viewRepos" class="pb-16">
+      <v-container v-if="showRepos" class="pb-16">
         <v-row>
           <v-col cols="12 text-center">
             <h2 v-if="repos.length > 1">
@@ -76,7 +84,9 @@
         </v-row>
         <v-row>
           <v-col
-            sm="4"
+            sm="8"
+            md="4"
+            lg="4"
             v-for="repo in repos.slice(page * pageSize - 25, page * pageSize)"
             :key="repo.name"
           >
@@ -86,8 +96,8 @@
                   v-bind="attrs"
                   v-on="on"
                   class="pt-2 pb-2 ma-5"
-                  @click="showBranches(repo.name, username)"
-                  @keyup.enter="showBranches(repo.name, username)"
+                  @click="fetchBranches(repo.name, username)"
+                  @keyup.enter="fetchBranches(repo.name, username)"
                 >
                   <v-list-item three-line>
                     <v-list-item-avatar size="62"
@@ -112,7 +122,7 @@
                   </v-list-item>
                 </v-card>
               </template>
-              <span>Clikc to view branches</span>
+              <span>Click to view branches</span>
             </v-tooltip>
           </v-col>
         </v-row>
@@ -130,7 +140,7 @@
     </v-fade-transition>
 
     <!-- Branches -->
-    <v-fade-transition v-if="viewBranches">
+    <v-fade-transition v-if="showBranches">
       <v-container class="pb-16">
         <v-row>
           <v-col cols="12 text-center">
@@ -175,23 +185,21 @@ import Vue from "vue";
 import Component from "vue-class-component";
 import axios from "axios";
 
-@Component({})
+@Component
 export default class HelloWorld extends Vue {
   // Component data
   page = 1;
   pageSize = 25;
   loading = false;
   username = "";
-  repos = [];
+  repos: string[] = [];
   numberOfPages = 0;
   resultErrorMessage = "";
-  viewRepos = false;
-  showSearch = true;
-  error = "";
-  viewBranches = false;
-  branches = [];
-  active = false;
+  showBranches = false;
+  showRepos = false;
+  branches: string[] = [];
   repoName = "";
+  noRepos = false;
 
   // Validation rules for v-input
   data() {
@@ -203,24 +211,21 @@ export default class HelloWorld extends Vue {
     };
   }
 
-  // Methods will be component methods
+
+
+  // Fetching the repositories on search
   fetchRepos(username: string) {
     this.loading = true;
-    axios({
-      method: "GET",
-      url: `https://api.github.com/users/${username}/repos?per_page=100`,
-    })
+    axios
+      .get(`https://api.github.com/users/${username}/repos?per_page=100`)
       .then((response) => {
         this.repos = response.data;
         this.numberOfPages = Math.ceil(this.repos.length / 25);
         this.loading = false;
         if (this.repos.length === 0) {
-          this.resultErrorMessage =
-            "Sorry, that username does not exist. Try searching for someone else.";
+          this.noRepos = true;
         } else {
-          this.viewRepos = true;
-          // this.showSearch = false;
-          console.log(this.repos);
+          this.showRepos = true;
         }
       })
       .catch((error) => {
@@ -231,18 +236,8 @@ export default class HelloWorld extends Vue {
       });
   }
 
-  hideRepos() {
-    this.viewRepos = false;
-    this.showSearch = true;
-  }
-
-  clearResultErrorMessage() {
-    this.resultErrorMessage = "";
-    this.viewRepos = false;
-  }
-
-  showBranches(repo: string, username: string) {
-    console.log(repo);
+  // Fetching the branches when repository is selected
+  fetchBranches(repo: string, username: string) {
     axios({
       method: "GET",
       url: ` https://api.github.com/repos/${username}/${repo}/branches`,
@@ -250,13 +245,11 @@ export default class HelloWorld extends Vue {
       .then((response) => {
         this.repoName = repo;
         this.branches = response.data;
-        this.viewBranches = true;
-        this.viewRepos = false;
+        this.showBranches = true;
+        this.showRepos = false;
         if (this.branches.length === 0) {
           this.resultErrorMessage =
             "Sorry, that repo does not have any branches.";
-        } else {
-          console.log(this.branches);
         }
       })
       .catch((error) => {
@@ -267,14 +260,19 @@ export default class HelloWorld extends Vue {
       });
   }
 
-  hideBranches() {
+  clearResultErrorMessage() {
     this.resultErrorMessage = "";
-    this.viewBranches = false;
-    this.viewRepos = true;
+    this.showRepos = false;
   }
 
-  formatDate(createdDate: Date) {
-    const months = [
+  hideBranches() {
+    this.resultErrorMessage = "";
+    this.showBranches = false;
+    this.showRepos = true;
+  }
+
+  formatDate(createdDate: string): string {
+    const months: string[] = [
       "January",
       "February",
       "March",
@@ -288,11 +286,10 @@ export default class HelloWorld extends Vue {
       "November",
       "December",
     ];
-    const d = new Date(createdDate);
-    const year = d.getFullYear();
-    const month = months[d.getMonth()];
-    const date = d.getDate();
-
+    const newDate: Date = new Date(createdDate);
+    const year: number = newDate.getFullYear();
+    const month: string = months[newDate.getMonth()];
+    const date: number = newDate.getDate();
     const formattedDate = `${date} ${month} ${year}`;
     return formattedDate;
   }
