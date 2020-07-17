@@ -188,28 +188,24 @@ import axios from "axios";
 @Component
 export default class HelloWorld extends Vue {
   // Component data
-  page = 1;
-  pageSize = 25;
   loading = false;
-  username = "";
-  repos: string[] = [];
-  numberOfPages = 0;
-  resultErrorMessage = "";
   showBranches = false;
   showRepos = false;
+  noRepos = false;
+  username = "";
+  repos: string[] = [];
   branches: string[] = [];
   repoName = "";
-  noRepos = false;
+  page = 1;
+  pageSize = 25;
+  numberOfPages = 0;
+  resultErrorMessage = "";
 
   // Validation rules for v-input
-  data() {
-    return {
-      loginRules: [
-        (value: string) =>
-          !!value || "An input is required, try searching for a username"
-      ]
-    };
-  }
+  loginRules = [
+    (value: string) =>
+      !!value || "An input is required, try searching for a username"
+  ];
 
   // Fetching the repositories on search
   fetchRepos(username: string) {
@@ -282,7 +278,7 @@ export default class HelloWorld extends Vue {
       "September",
       "October",
       "November",
-      "December",
+      "December"
     ];
     const newDate: Date = new Date(createdDate);
     const year: number = newDate.getFullYear();
