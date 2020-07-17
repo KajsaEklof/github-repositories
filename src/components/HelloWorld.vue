@@ -174,7 +174,6 @@
 import Vue from "vue";
 import Component from "vue-class-component";
 import axios from "axios";
-import moment from "moment";
 
 @Component({})
 export default class HelloWorld extends Vue {

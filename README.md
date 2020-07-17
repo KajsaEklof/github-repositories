@@ -1,7 +1,7 @@
 # Vue and TypeScript - Github API Project
 
 ## Description
-Application using [Vue](https://vuejs.org/), [TypeScript](https://www.typescriptlang.org/), [Veutify](https://vuetifyjs.com/en/) and [Axios](https://github.com/axios/axios) to display a list of users GitHub repositories and their branches.
+Application using [Vue](https://vuejs.org/), [TypeScript](https://www.typescriptlang.org/), [Veutify](https://vuetifyjs.com/en/) and [Axios](https://github.com/axios/axios) to display a list of users GitHub repositories and branches.
 
 ### Demo
 [Demo](https://www.kajsaeklof.com/github-repositories/)
