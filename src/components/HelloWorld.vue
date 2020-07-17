@@ -101,8 +101,8 @@
                 >
                   <v-list-item three-line>
                     <v-list-item-avatar size="62"
-                      ><v-img :src="repo.owner.avatar_url" alt="User Avatar"
-                    /></v-list-item-avatar>
+                      ><v-img :src="repo.owner.avatar_url" alt="User Avatar" />
+                    </v-list-item-avatar>
                     <v-list-item-content>
                       <v-list-item-title>
                         <a :href="repo.html_url" target="_blank"
@@ -206,19 +206,19 @@ export default class HelloWorld extends Vue {
     return {
       loginRules: [
         (value: string) =>
-          !!value || "An input is required, try searching for a username",
-      ],
+          !!value || "An input is required, try searching for a username"
+      ]
     };
   }
-
-
 
   // Fetching the repositories on search
   fetchRepos(username: string) {
     this.loading = true;
+    const errorMessage =
+      "Sorry, that username does not exist. Try searching for someone else.";
     axios
       .get(`https://api.github.com/users/${username}/repos?per_page=100`)
-      .then((response) => {
+      .then(response => {
         this.repos = response.data;
         this.numberOfPages = Math.ceil(this.repos.length / 25);
         this.loading = false;
@@ -228,33 +228,31 @@ export default class HelloWorld extends Vue {
           this.showRepos = true;
         }
       })
-      .catch((error) => {
-        this.resultErrorMessage =
-          "Sorry, that username does not exist. Try searching for someone else.";
+      .catch(error => {
+        this.resultErrorMessage = errorMessage;
         this.loading = false;
         console.log(error);
       });
   }
 
-  // Fetching the branches when repository is selected
+  // Fetching the branches when a repository is selected
   fetchBranches(repo: string, username: string) {
+    const errorMessage = "Sorry, that repo does not have any branches.";
     axios({
       method: "GET",
-      url: ` https://api.github.com/repos/${username}/${repo}/branches`,
+      url: ` https://api.github.com/repos/${username}/${repo}/branches`
     })
-      .then((response) => {
+      .then(response => {
         this.repoName = repo;
         this.branches = response.data;
         this.showBranches = true;
         this.showRepos = false;
         if (this.branches.length === 0) {
-          this.resultErrorMessage =
-            "Sorry, that repo does not have any branches.";
+          this.resultErrorMessage = errorMessage;
         }
       })
-      .catch((error) => {
-        this.resultErrorMessage =
-          "Sorry, that repo does not have any branches.";
+      .catch(error => {
+        this.resultErrorMessage = errorMessage;
         this.loading = false;
         console.log(error);
       });
