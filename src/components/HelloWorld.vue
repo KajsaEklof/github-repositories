@@ -198,8 +198,8 @@ export default class HelloWorld extends Vue {
     return {
       loginRules: [
         (value: string) =>
-          !!value || "An input is required, try searching for a username"
-      ]
+          !!value || "An input is required, try searching for a username",
+      ],
     };
   }
 
@@ -208,9 +208,9 @@ export default class HelloWorld extends Vue {
     this.loading = true;
     axios({
       method: "GET",
-      url: `https://api.github.com/users/${username}/repos?per_page=100`
+      url: `https://api.github.com/users/${username}/repos?per_page=100`,
     })
-      .then(response => {
+      .then((response) => {
         this.repos = response.data;
         this.numberOfPages = Math.ceil(this.repos.length / 25);
         this.loading = false;
@@ -223,7 +223,7 @@ export default class HelloWorld extends Vue {
           console.log(this.repos);
         }
       })
-      .catch(error => {
+      .catch((error) => {
         this.resultErrorMessage =
           "Sorry, that username does not exist. Try searching for someone else.";
         this.loading = false;
@@ -245,9 +245,9 @@ export default class HelloWorld extends Vue {
     console.log(repo);
     axios({
       method: "GET",
-      url: ` https://api.github.com/repos/${username}/${repo}/branches`
+      url: ` https://api.github.com/repos/${username}/${repo}/branches`,
     })
-      .then(response => {
+      .then((response) => {
         this.repoName = repo;
         this.branches = response.data;
         this.viewBranches = true;
@@ -259,7 +259,7 @@ export default class HelloWorld extends Vue {
           console.log(this.branches);
         }
       })
-      .catch(error => {
+      .catch((error) => {
         this.resultErrorMessage =
           "Sorry, that repo does not have any branches.";
         this.loading = false;
@@ -273,9 +273,27 @@ export default class HelloWorld extends Vue {
     this.viewRepos = true;
   }
 
-  formatDate(date: string) {
-    const newDate = moment(date);
-    const formattedDate = newDate.format("D MMMM YYYY");
+  formatDate(createdDate: Date) {
+    const months = [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ];
+    const d = new Date(createdDate);
+    const year = d.getFullYear();
+    const month = months[d.getMonth()];
+    const date = d.getDate();
+
+    const formattedDate = `${date} ${month} ${year}`;
     return formattedDate;
   }
 }
