@@ -26,6 +26,7 @@
                   @input="
                     clearResultErrorMessage(),
                       (showRepos = false),
+                      (showBranches = false),
                       (noRepos = false)
                   "
                   clearable
@@ -209,6 +210,7 @@ export default class HelloWorld extends Vue {
 
   // Fetching the repositories on search
   fetchRepos(username: string) {
+    
     this.loading = true;
     const errorMessage =
       "Sorry, that username does not exist. Try searching for someone else.";
